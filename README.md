@@ -30,16 +30,6 @@ docker compose down
 # Unit tests
 npm test -- --runInBand
 
-# End-to-end tests
-npm run test:e2e -- --runInBand
-
-# Postman collection (start the API first)
-npm run test:postman
-
-# Postman collection with a real server restart (build first)
-npm run build
-npm run test:persistence
-
 # Lint
 npm run lint
 ```
