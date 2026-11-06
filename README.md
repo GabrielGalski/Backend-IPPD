@@ -30,6 +30,9 @@ docker compose down
 # Unit tests
 npm test -- --runInBand
 
+# End-to-end test
+npm run test:e2e -- --runInBand
+
 # Lint
 npm run lint
 ```
