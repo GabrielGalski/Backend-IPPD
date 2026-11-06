@@ -1,0 +1,82 @@
+# Dependencies and generated build output
+node_modules/
+/dist/
+/build/
+/.tools/
+
+# Persistent runtime data (created automatically)
+/data/*
+!/data/.gitkeep
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Generated test reports and execution data (keep test source files)
+/test-results/
+coverage/
+.nyc_output/
+newman/
+playwright-report/
+blob-report/
+*.postman_test_run.json
+*.postman_run.json
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Local environment files; only the example is versioned
+.env
+.env.*
+!.env.example
+
+# Local tooling, caches, and temporary files
+/.codex/
+/.agents/
+/.aws/
+.temp/
+.tmp/
+.cache/
+.npm/
+.pnpm-store/
+.eslintcache
+.oxlintcache
+*.tmp
+*.bak
+*.orig
+*~
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

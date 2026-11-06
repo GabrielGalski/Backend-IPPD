@@ -1,0 +1,1181 @@
+{
+  "info": {
+    "name": "Nest JSON API - Tarefas e Projetos",
+    "_postman_id": "4d4e97ef-f6cd-4580-8ef6-35751cd94db8",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "CRUD completo de tarefas e projetos. Execute 01 e 02 para CRUD; execute 03, reinicie o servidor e execute 04 para confirmar a persistência. Instruções em postman/COMO_TESTAR.md. Nos runs separados, habilite Keep variable values."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "projectId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "persistProjectId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "persistTaskId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "persistProjectSnapshot",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "persistTaskSnapshot",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "persistenceToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Projetos (CRUD)",
+      "description": "Execute esta pasta inteira no Runner. Os registros criados aqui são removidos ao final. Nenhum registro anterior é alterado.",
+      "item": [
+        {
+          "name": "01 POST - Criar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects",
+            "description": "01 POST - Criar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Projeto Postman\",\n  \"descricao\": \"Criado no Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('projectId', String(pm.response.json().id));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"nome\":\"Projeto Postman\",\"descricao\":\"Criado no Postman\",\"ativo\":true}));",
+                  "pm.test('ID numérico', () => pm.expect(pm.response.json().id).to.be.a('number')); "
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 GET - Listar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/projects",
+            "description": "02 GET - Listar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Lista JSON', () => pm.expect(pm.response.json()).to.be.an('array'));",
+                  "pm.test('Lista contém o registro criado', () => pm.expect(pm.response.json().some(item => item.id === Number(pm.collectionVariables.get('projectId')))).to.equal(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 GET - Consultar por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "03 GET - Consultar por ID"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"nome\":\"Projeto Postman\",\"descricao\":\"Criado no Postman\",\"ativo\":true}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 PUT - Substituir todos os campos",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "04 PUT - Substituir todos os campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Projeto substituído\",\n  \"descricao\": \"Todos os campos substituídos\",\n  \"ativo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"nome\":\"Projeto substituído\",\"descricao\":\"Todos os campos substituídos\",\"ativo\":false}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 PATCH - Alterar apenas alguns campos",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "05 PATCH - Alterar apenas alguns campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"nome\":\"Projeto substituído\",\"descricao\":\"Todos os campos substituídos\",\"ativo\":true}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 GET - Confirmar alteração",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "06 GET - Confirmar alteração"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"nome\":\"Projeto substituído\",\"descricao\":\"Todos os campos substituídos\",\"ativo\":true}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 POST - Rejeitar campos ausentes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects",
+            "description": "07 POST - Rejeitar campos ausentes",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 PUT - Rejeitar substituição incompleta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "08 PUT - Rejeitar substituição incompleta",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 PATCH - Rejeitar mudança de ID",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "09 PATCH - Rejeitar mudança de ID",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 PATCH - Rejeitar campo nulo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "10 PATCH - Rejeitar campo nulo",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 GET - Rejeitar ID inválido",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/projects/abc",
+            "description": "11 GET - Rejeitar ID inválido"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 DELETE - Excluir",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "12 DELETE - Excluir"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "pm.test('Sem corpo na exclusão', () => pm.expect(pm.response.text()).to.equal('')); "
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 GET - Registro excluído retorna 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "13 GET - Registro excluído retorna 404"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 PUT - Registro inexistente retorna 404",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "14 PUT - Registro inexistente retorna 404",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Projeto substituído\",\n  \"descricao\": \"Todos os campos substituídos\",\n  \"ativo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15 PATCH - Registro inexistente retorna 404",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "15 PATCH - Registro inexistente retorna 404",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "16 DELETE - Registro inexistente retorna 404",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "description": "16 DELETE - Registro inexistente retorna 404"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Tarefas (CRUD)",
+      "description": "Execute esta pasta inteira no Runner. Os registros criados aqui são removidos ao final. Nenhum registro anterior é alterado.",
+      "item": [
+        {
+          "name": "01 POST - Criar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks",
+            "description": "01 POST - Criar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Tarefa Postman\",\n  \"inicio\": 1,\n  \"fim\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('taskId', String(pm.response.json().id));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"descricao\":\"Tarefa Postman\",\"inicio\":1,\"fim\":10,\"status\":\"PENDENTE\",\"resultado\":null}));",
+                  "pm.test('ID numérico', () => pm.expect(pm.response.json().id).to.be.a('number')); "
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 GET - Listar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/tasks",
+            "description": "02 GET - Listar"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Lista JSON', () => pm.expect(pm.response.json()).to.be.an('array'));",
+                  "pm.test('Lista contém o registro criado', () => pm.expect(pm.response.json().some(item => item.id === Number(pm.collectionVariables.get('taskId')))).to.equal(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 GET - Consultar por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "03 GET - Consultar por ID"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"descricao\":\"Tarefa Postman\",\"inicio\":1,\"fim\":10,\"status\":\"PENDENTE\",\"resultado\":null}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 PUT - Substituir todos os campos",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "04 PUT - Substituir todos os campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Tarefa substituída\",\n  \"inicio\": 2,\n  \"fim\": 20,\n  \"status\": \"EM_ANDAMENTO\",\n  \"resultado\": [\n    2,\n    4,\n    6\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"descricao\":\"Tarefa substituída\",\"inicio\":2,\"fim\":20,\"status\":\"EM_ANDAMENTO\",\"resultado\":[2,4,6]}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 PATCH - Alterar apenas alguns campos",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "05 PATCH - Alterar apenas alguns campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONCLUIDA\",\n  \"resultado\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"descricao\":\"Tarefa substituída\",\"inicio\":2,\"fim\":20,\"status\":\"CONCLUIDA\",\"resultado\":null}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 GET - Confirmar alteração",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "06 GET - Confirmar alteração"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"descricao\":\"Tarefa substituída\",\"inicio\":2,\"fim\":20,\"status\":\"CONCLUIDA\",\"resultado\":null}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 POST - Rejeitar campos ausentes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks",
+            "description": "07 POST - Rejeitar campos ausentes",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 PUT - Rejeitar substituição incompleta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "08 PUT - Rejeitar substituição incompleta",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONCLUIDA\",\n  \"resultado\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 PATCH - Rejeitar mudança de ID",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "09 PATCH - Rejeitar mudança de ID",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 PATCH - Rejeitar campo nulo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "10 PATCH - Rejeitar campo nulo",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 GET - Rejeitar ID inválido",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/tasks/abc",
+            "description": "11 GET - Rejeitar ID inválido"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 DELETE - Excluir",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "12 DELETE - Excluir"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "pm.test('Sem corpo na exclusão', () => pm.expect(pm.response.text()).to.equal('')); "
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 GET - Registro excluído retorna 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "13 GET - Registro excluído retorna 404"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 PUT - Registro inexistente retorna 404",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "14 PUT - Registro inexistente retorna 404",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Tarefa substituída\",\n  \"inicio\": 2,\n  \"fim\": 20,\n  \"status\": \"EM_ANDAMENTO\",\n  \"resultado\": [\n    2,\n    4,\n    6\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15 PATCH - Registro inexistente retorna 404",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "15 PATCH - Registro inexistente retorna 404",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONCLUIDA\",\n  \"resultado\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "16 DELETE - Registro inexistente retorna 404",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "description": "16 DELETE - Registro inexistente retorna 404"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Persistência (preparar)",
+      "description": "Execute uma vez, habilitando Keep variable values. Pare e inicie o servidor ou reinicie o contêiner. Depois execute 04 sem executar 03 novamente.",
+      "item": [
+        {
+          "name": "01 POST - Criar projeto persistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects",
+            "description": "01 POST - Criar projeto persistente",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Persistência {{persistenceToken}}\",\n  \"descricao\": \"Deve sobreviver ao reinício\",\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('persistenceToken', pm.variables.replaceIn('{{$guid}}')); "
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('persistProjectId', String(pm.response.json().id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 PATCH - Salvar projeto e sua fotografia",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/projects/{{persistProjectId}}",
+            "description": "02 PATCH - Salvar projeto e sua fotografia",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('persistProjectSnapshot', JSON.stringify(pm.response.json()));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"ativo\":false}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 POST - Criar tarefa persistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks",
+            "description": "03 POST - Criar tarefa persistente",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Persistência {{persistenceToken}}\",\n  \"inicio\": 3,\n  \"fim\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('persistTaskId', String(pm.response.json().id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 PUT - Salvar tarefa e sua fotografia",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/tasks/{{persistTaskId}}",
+            "description": "04 PUT - Salvar tarefa e sua fotografia",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Persistência {{persistenceToken}}\",\n  \"inicio\": 4,\n  \"fim\": 40,\n  \"status\": \"CONCLUIDA\",\n  \"resultado\": [\n    4,\n    8,\n    12\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('persistTaskSnapshot', JSON.stringify(pm.response.json()));",
+                  "pm.test('Campos retornados corretamente', () => pm.expect(pm.response.json()).to.deep.include({\"inicio\":4,\"fim\":40,\"status\":\"CONCLUIDA\",\"resultado\":[4,8,12]}));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Persistência (confirmar após reinício)",
+      "description": "Execute SOMENTE depois de reiniciar o processo. As respostas completas devem ser iguais às salvas pela pasta 03, inclusive IDs e alterações de PUT/PATCH. Não exclui os registros de demonstração.",
+      "item": [
+        {
+          "name": "01 GET - Projeto preservado após reinício",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/projects/{{persistProjectId}}",
+            "description": "01 GET - Projeto preservado após reinício"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Registro idêntico ao salvo antes do reinício', () => pm.expect(pm.response.json()).to.deep.equal(JSON.parse(pm.collectionVariables.get('persistProjectSnapshot'))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 GET - Tarefa preservada após reinício",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/tasks/{{persistTaskId}}",
+            "description": "02 GET - Tarefa preservada após reinício"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Registro idêntico ao salvo antes do reinício', () => pm.expect(pm.response.json()).to.deep.equal(JSON.parse(pm.collectionVariables.get('persistTaskSnapshot'))));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

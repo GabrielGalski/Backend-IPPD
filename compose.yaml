@@ -1,0 +1,18 @@
+name: nest-json-api
+services:
+  api:
+    build: .
+    init: true
+    restart: unless-stopped
+    ports:
+      - '${PORT:-3000}:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATA_DIR: /app/data
+    volumes:
+      - api-data:/app/data
+    stop_grace_period: 15s
+
+volumes:
+  api-data:
