@@ -4,10 +4,6 @@ node_modules/
 /build/
 /.tools/
 
-# Persistent runtime data (created automatically)
-/data/*
-!/data/.gitkeep
-
 # TypeScript build cache
 *.tsbuildinfo
 
